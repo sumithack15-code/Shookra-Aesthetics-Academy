@@ -66,13 +66,20 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [activeServiceDetail]);
 
-  // Dynamic Document Title for SEO when switching between Home and Dedicated Service Pages
+  // Dynamic Document Title & Canonical URL for SEO when switching between Home and Dedicated Service Pages
   useEffect(() => {
+    const canonicalEl = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (activeServiceDetail) {
       document.title = `${activeServiceDetail.name} in New Delhi | Shookra Aesthetics & Academy`;
+      if (canonicalEl) {
+        canonicalEl.href = `${window.location.origin}/?treatment=${activeServiceDetail.slug}`;
+      }
     } else {
       document.title =
         "Shookra Aesthetics & Academy | Premium Aesthetic Clinic in New Delhi";
+      if (canonicalEl) {
+        canonicalEl.href = `${window.location.origin}/`;
+      }
     }
   }, [activeServiceDetail]);
 

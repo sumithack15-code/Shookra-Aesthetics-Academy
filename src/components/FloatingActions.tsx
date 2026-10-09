@@ -27,6 +27,15 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  React.useEffect(() => {
+    if (!instagramModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCloseInstagramModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [instagramModalOpen, onCloseInstagramModal]);
+
   const hasCustomInstagram = isConfiguredValue(
     INSTAGRAM_URL,
     "YOUR_INSTAGRAM_URL_HERE"

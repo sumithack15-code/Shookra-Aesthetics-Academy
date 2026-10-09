@@ -52,14 +52,21 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [confirmedAppointment, setConfirmedAppointment] =
     useState<Appointment | null>(null);
 
-  // Generate next 14 upcoming dates for clean modern calendar picker
+  // Generate next 14 upcoming dates in local timezone for accurate calendar selection
+  const toLocalIsoDate = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const upcomingDates = React.useMemo(() => {
     const list: { iso: string; dayName: string; dayNum: string; month: string }[] = [];
     const base = new Date();
     for (let i = 1; i <= 14; i++) {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
-      const iso = d.toISOString().split("T")[0];
+      const iso = toLocalIsoDate(d);
       const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
       const dayNum = d.toLocaleDateString("en-US", { day: "2-digit" });
       const month = d.toLocaleDateString("en-US", { month: "short" });
@@ -79,6 +86,20 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       setErrorMsg("");
     }
   }, [isOpen, initialService, selectedDate, upcomingDates]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setStep(1);
+        setConfirmedAppointment(null);
+        setErrorMsg("");
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -324,7 +345,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <input
                     id="custom-date-input"
                     type="date"
-                    min={new Date().toISOString().split("T")[0]}
+                    min={toLocalIsoDate(new Date())}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="w-full sm:w-64 px-4 py-2.5 text-sm bg-[#1A1714] border border-[#F6F3EE]/20 rounded-sm text-[#F6F3EE] focus:outline-none focus:border-[#C6A368]"

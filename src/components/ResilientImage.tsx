@@ -20,6 +20,16 @@ export const ResilientImage: React.FC<ResilientImageProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = React.useRef<HTMLImageElement | null>(null);
+
+  React.useEffect(() => {
+    setHasError(false);
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
+    }
+  }, [src]);
 
   return (
     <div className={containerClassName}>
@@ -32,6 +42,7 @@ export const ResilientImage: React.FC<ResilientImageProps> = ({
 
       {!hasError ? (
         <img
+          ref={imgRef}
           src={src}
           alt={alt}
           referrerPolicy="no-referrer"
